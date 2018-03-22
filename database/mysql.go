@@ -4,13 +4,16 @@ import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
+	. "../config"
 )
 
 var SqlDB *sql.DB
 
 func init() {
 	var err error
-	SqlDB, err = sql.Open("mysql", "root:123456@tcp(127.0.0.1:3306)/huajiao?parseTime=true")
+	conf := &Conf.Mysql
+
+	SqlDB, err = sql.Open(Conf.Db, conf.User+":"+conf.Pass+"@tcp("+conf.Host+":"+conf.Port+")/"+conf.Database+"?parseTime=true")
 	if err != nil {
 		log.Fatal(err.Error())
 	}

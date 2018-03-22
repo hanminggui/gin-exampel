@@ -6,8 +6,8 @@ import (
 	)
 
 
-func v1(router *gin.Engine) {
-	v1 := router.Group("/api/v1")
+func v1(router *gin.RouterGroup) {
+	v1 := router.Group("/v1")
 	v1.GET("/persion/:id", GetOnePersion)
 	v1.POST("/persion", AddPersion)
 }
