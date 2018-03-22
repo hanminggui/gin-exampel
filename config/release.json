@@ -1,6 +1,11 @@
 {
+  "db": "mysql",
+  "port": "8081",
+  "mysql": {
     "host": "127.0.0.1",
     "user": "root",
     "pass": "123456",
+    "port": "3306",
     "database": "huajiao"
+  }
 }
