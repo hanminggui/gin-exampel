@@ -2,10 +2,10 @@
   "db": "mysql",
   "port": "8080",
   "mysql": {
-    "host": "127.0.0.1",
+    "host": "mysql.pookor.com",
     "user": "root",
-    "pass": "123456",
+    "pass": "root",
     "port": "3306",
-    "database": "huajiao"
+    "database": "time_machine"
   }
 }

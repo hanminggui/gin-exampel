@@ -24,7 +24,11 @@ type conf struct {
 var Conf conf
 
 func init()  {
-	file, _ := os.Open("./config/"+os.Getenv("GIN_MODE")+".json")
+	env := os.Getenv("GIN_MODE")
+	if env == "" {
+		env = "debug"
+	}
+	file, _ := os.Open("./config/"+env+".json")
 	defer file.Close()
 	decoder := json.NewDecoder(file)
 	err := decoder.Decode(&Conf)
