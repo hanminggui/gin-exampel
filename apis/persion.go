@@ -3,7 +3,7 @@ package apis
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	. "../moudles"
+	. "github.com/hanminggui/gin-exampel/moudles"
 	"log"
 	"strconv"
 )

@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
-	. "../config"
+	. "github.com/hanminggui/gin-exampel/config"
 )
 
 var SqlDB *sql.DB

@@ -2,7 +2,7 @@ package routers
 
 import (
 	"github.com/gin-gonic/gin"
-	. "../apis"
+	. "github.com/hanminggui/gin-exampel/apis"
 	)
 
 

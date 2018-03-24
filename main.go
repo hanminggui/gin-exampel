@@ -1,9 +1,9 @@
-package main
+package main // import "github.com/hanminggui/gin-exampel"
 
 import (
-	db "./database"
-	r "./routers"
-	. "./config"
+	db "github.com/hanminggui/gin-exampel/database"
+	r "github.com/hanminggui/gin-exampel/routers"
+	. "github.com/hanminggui/gin-exampel/config"
 )
 func main() {
 

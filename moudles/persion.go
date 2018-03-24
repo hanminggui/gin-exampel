@@ -1,7 +1,7 @@
 package moudles
 
 import (
-	db "../database"
+	db "github.com/hanminggui/gin-exampel/database"
 )
 
 type Person struct {
