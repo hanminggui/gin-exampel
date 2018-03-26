@@ -2,7 +2,6 @@ package moudles
 
 type Coach struct {
 	Id 			int64	`json:"id"`
-	//UserId 		int64	`json:"user_id"`
 	Level 		int		`json:"level"`
 	Type 		int		`json:"type"`
 	PicsUrl 	string	`json:"pics_url"`
