@@ -12,12 +12,12 @@ machine api.github.com
 ```
 go get github.com/hanminggui/gin-exampel
 ```
-Linux
+- Linux
 ```
 cd ~/go/src/github.com/hanminggui/gin-exampel
 ./install.sh
 ```
-Windows
+- Windows
 ```
 cd C:
 cd C:\Users\song\go\src\github.com\hanminggui\gin-exampel
@@ -39,13 +39,13 @@ set GIN_MODE=release
 go build
 ```
 - run
-Linux
+
 ```
+Linux
 go run #开发环境 编译并运行
 ./exampel #编译后运行
-```
+
 Windows
-```
 gin-exampel.exe #编译后运行
 ```
 
