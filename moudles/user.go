@@ -1,7 +1,7 @@
 package moudles
 
 import (
-	Db "github.com/hanminggui/gin-exampel/database"
+	db "github.com/hanminggui/gin-exampel/database"
 )
 
 type User struct {
@@ -29,7 +29,7 @@ type User struct {
  * 新增用户
  */
 func (user *User) AddUser() (id int64, err error) {
-	rs, err := Db.SqlDB.Exec("INSERT INTO user(nick_name, sex, stage, state, user_type, birthday, school_name, brief_info, company, position, " +
+	rs, err := db.SqlDB.Exec("INSERT INTO user(nick_name, sex, stage, state, user_type, birthday, school_name, brief_info, company, position, " +
 		"specialty, head_img_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		user.NickName, user.Sex, user.Stage, user.State, user.UserType, user.Birthday, user.SchoolName, user.BriefInfo, user.Company, user.Position,
 			user.Specialty, user.HeadImgUrl)
@@ -44,7 +44,7 @@ func (user *User) AddUser() (id int64, err error) {
  * 获取用户信息
  */
 func (user *User) GetDetail() {
-	row := Db.SqlDB.QueryRow("SELECT * from user where id=?", user.Id)
+	row := db.SqlDB.QueryRow("SELECT * from user where id=?", user.Id)
 	err := row.Scan(&user.Id, user.NickName, user.Sex, user.Stage, user.State, user.UserType, user.Birthday, user.SchoolName, user.BriefInfo,
 		user.Company, user.Position, user.Specialty, user.HeadImgUrl)
 	if err != nil {
@@ -56,7 +56,7 @@ func (user *User) GetDetail() {
  * 报名
  */
 func (user *User) Apply(share *Share, apply_type int) (id int64, err error) {
-	rs, err := Db.SqlDB.Exec("INSERT INTO apply(share_id, user_id, apply_type, state) VALUES (?, ?, ?, ?)",
+	rs, err := db.SqlDB.Exec("INSERT INTO apply(share_id, user_id, apply_type, state) VALUES (?, ?, ?, ?)",
 		share.Id, user.Id, apply_type, 0)
 	if err != nil {
 		return
