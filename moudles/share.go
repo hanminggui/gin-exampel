@@ -11,5 +11,6 @@ type Share struct {
 	AuditState 	int		`json:"audit_state"`
 	LookesState int		`json:"lookes_state"`
 	IsDelete 	int		`json:"is_delete"`
+	Applys		[]Apply
 	CuAt
 }
