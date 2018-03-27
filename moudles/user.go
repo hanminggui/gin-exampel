@@ -18,10 +18,10 @@ type User struct {
 	Position 	string	`json:"position"`
 	Specialty 	string	`json:"specialty"`
 	HeadImgUrl 	string	`json:"head_img_url"`
-	Applys 		[]Apply
-	Shares		[]Share
-	Follows		[]User
-	Fanss		[]User
+	Applys 		[]*Share
+	Shares		[]*Share
+	Follows		[]*Attention
+	Fanss		[]*Attention
 	CuAt
 }
 
@@ -41,18 +41,6 @@ func (user *User) AddUser() (id int64, err error) {
 }
 
 /**
- * 获取用户信息
- */
-func (user *User) GetDetail() {
-	row := db.SqlDB.QueryRow("SELECT * from user where id=?", user.Id)
-	err := row.Scan(&user.Id, user.NickName, user.Sex, user.Stage, user.State, user.UserType, user.Birthday, user.SchoolName, user.BriefInfo,
-		user.Company, user.Position, user.Specialty, user.HeadImgUrl)
-	if err != nil {
-		panic(err)
-	}
-}
-
-/**
  * 报名
  */
 func (user *User) Apply(share *Share, apply_type int) (id int64, err error) {
@@ -63,4 +51,110 @@ func (user *User) Apply(share *Share, apply_type int) (id int64, err error) {
 	}
 	id, err = rs.LastInsertId()
 	return
+}
+
+/**
+ * 发布分享
+ */
+func (user *User) AddShare(share *Share) (id int64, err error) {
+	rs, err := db.SqlDB.Exec("INSERT INTO share(title, start_at, end_at, amount, type, audit_state, lookes_state, is_delete) " +
+		"VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+		share.Title, share.StartAt, share.EndAt, share.Amount, share.Type, share.AuditState, share.LookesState, share.IsDelete)
+	if err != nil {
+		return
+	}
+	id, err = rs.LastInsertId()
+	share.Id = id
+	user.Shares = append(user.Shares, share)
+	return
+}
+
+/**
+ * 新增粉丝
+ */
+func (user *User) AddFans(fans *Attention) (id int64, err error) {
+	rs, err := db.SqlDB.Exec("INSERT INTO attention(user_id, to_user_id, relation) VALUES (?, ?, ?)", fans.user.Id, user.Id, 0)
+	if err != nil {
+		return
+	}
+	id, err = rs.LastInsertId()
+	user.Fanss = append(user.Fanss, fans)
+	return
+}
+
+/**
+ * 新增关注
+ */
+func (user *User) AddFollow(follow *Attention) (id int64, err error) {
+	rs, err := db.SqlDB.Exec("INSERT INTO attention(user_id, to_user_id, relation) VALUES (?, ?, ?)", user.Id, follow.user.Id, 0)
+	if err != nil {
+		return
+	}
+	id, err = rs.LastInsertId()
+	user.Follows = append(user.Follows, follow)
+	return
+}
+
+/**
+ * 获取用户信息
+ */
+func (user *User) GetDetail() {
+	row := db.SqlDB.QueryRow("SELECT * from user where id=?", user.Id)
+	err := row.Scan(user.Id, user.NickName, user.Sex, user.Stage, user.State, user.UserType, user.Birthday, user.SchoolName, user.BriefInfo,
+		user.Company, user.Position, user.Specialty, user.HeadImgUrl)
+	if err != nil {
+		panic(err)
+	}
+}
+
+/**
+ * 获取用户的分享列表
+ */
+func (user *User) GetShares() {
+	rows, err := db.SqlDB.Query("SELECT * from share where user_id=?", user.Id)
+	if err != nil {
+		panic(err)
+	}
+	user.Shares = make([]*Share, 0)
+	for rows.Next() {
+		share := Share{}
+		rows.Scan(share.Id, share.Title, share.StartAt, share.EndAt, share.Amount, share.Type, share.AuditState, share.LookesState, share.IsDelete)
+		user.Shares = append(user.Shares, &share)
+	}
+}
+
+/**
+ * 获取用户的关注列表
+ */
+func (user *User) GetFollows() {
+	rows, err := db.SqlDB.Query("SELECT * from attention a, user u where a.user_id=? and a.to_user_id=u.id", user.Id)
+	if err != nil {
+		panic(err)
+	}
+	user.Follows = make([]*Attention, 0)
+	for rows.Next() {
+		follow := Attention{}
+		rows.Scan(follow.user.Id, follow.user.NickName, follow.user.Stage, follow.user.State, follow.user.UserType, follow.user.Birthday,
+			follow.user.SchoolName, follow.user.BriefInfo, follow.user.Company, follow.user.Position, follow.user.Specialty, follow.user.HeadImgUrl,
+				follow.State, follow.Relation)
+		user.Follows = append(user.Follows, &follow)
+	}
+}
+
+/**
+ * 获取用户的粉丝列表
+ */
+func (user *User) GetFanss() {
+	rows, err := db.SqlDB.Query("SELECT * from attention a, user u where a.to_user_id=? and a.user_id=u.id", user.Id)
+	if err != nil {
+		panic(err)
+	}
+	user.Fanss = make([]*Attention, 0)
+	for rows.Next() {
+		fans := Attention{}
+		rows.Scan(fans.user.Id, fans.user.NickName, fans.user.Stage, fans.user.State, fans.user.UserType, fans.user.Birthday,
+			fans.user.SchoolName, fans.user.BriefInfo, fans.user.Company, fans.user.Position, fans.user.Specialty, fans.user.HeadImgUrl,
+			fans.State, fans.Relation)
+		user.Fanss = append(user.Fanss, &fans)
+	}
 }
