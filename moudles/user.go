@@ -76,7 +76,7 @@ func (user *User) AddShare(share *Share) (id int64, err error) {
  * 新增粉丝
  */
 func (user *User) AddFans(fans *Attention) (id int64, err error) {
-	rs, err := db.SqlDB.Exec("INSERT INTO attention(user_id, to_user_id, relation) VALUES (?, ?, ?)", fans.user.Id, user.Id, 0)
+	rs, err := db.SqlDB.Exec("INSERT INTO attention(user_id, to_user_id, relation) VALUES (?, ?, ?)", fans.User.Id, user.Id, 0)
 	if err != nil {
 		return
 	}
@@ -89,7 +89,7 @@ func (user *User) AddFans(fans *Attention) (id int64, err error) {
  * 新增关注
  */
 func (user *User) AddFollow(follow *Attention) (id int64, err error) {
-	rs, err := db.SqlDB.Exec("INSERT INTO attention(user_id, to_user_id, relation) VALUES (?, ?, ?)", user.Id, follow.user.Id, 0)
+	rs, err := db.SqlDB.Exec("INSERT INTO attention(user_id, to_user_id, relation) VALUES (?, ?, ?)", user.Id, follow.User.Id, 0)
 	if err != nil {
 		return
 	}
@@ -137,8 +137,8 @@ func (user *User) GetFollows() {
 	user.Follows = make([]*Attention, 0)
 	for rows.Next() {
 		follow := Attention{}
-		rows.Scan(follow.user.Id, follow.user.NickName, follow.user.Stage, follow.user.State, follow.user.UserType, follow.user.Birthday,
-			follow.user.SchoolName, follow.user.BriefInfo, follow.user.Company, follow.user.Position, follow.user.Specialty, follow.user.HeadImgUrl,
+		rows.Scan(follow.User.Id, follow.User.NickName, follow.User.Stage, follow.User.State, follow.User.UserType, follow.User.Birthday,
+			follow.User.SchoolName, follow.User.BriefInfo, follow.User.Company, follow.User.Position, follow.User.Specialty, follow.User.HeadImgUrl,
 			follow.State, follow.Relation)
 		user.Follows = append(user.Follows, &follow)
 	}
@@ -155,8 +155,8 @@ func (user *User) GetFanss() {
 	user.Fanss = make([]*Attention, 0)
 	for rows.Next() {
 		fans := Attention{}
-		rows.Scan(fans.user.Id, fans.user.NickName, fans.user.Stage, fans.user.State, fans.user.UserType, fans.user.Birthday,
-			fans.user.SchoolName, fans.user.BriefInfo, fans.user.Company, fans.user.Position, fans.user.Specialty, fans.user.HeadImgUrl,
+		rows.Scan(fans.User.Id, fans.User.NickName, fans.User.Stage, fans.User.State, fans.User.UserType, fans.User.Birthday,
+			fans.User.SchoolName, fans.User.BriefInfo, fans.User.Company, fans.User.Position, fans.User.Specialty, fans.User.HeadImgUrl,
 			fans.State, fans.Relation)
 		user.Fanss = append(user.Fanss, &fans)
 	}

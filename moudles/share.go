@@ -2,7 +2,6 @@ package moudles
 
 import (
 	db "github.com/hanminggui/gin-exampel/database"
-	"os/user"
 )
 
 type Share struct {
@@ -43,9 +42,9 @@ func (share *Share) GetApplys() {
 	share.Applys = make([]*Apply, 0)
 	for rows.Next() {
 		apply := Apply{}
-		rows.Scan(apply.Id, apply.State, apply.ApplyType, apply.user.Id, apply.user.NickName, apply.user.Sex, apply.user.Stage, apply.user.State,
-			apply.user.UserType, apply.user.Birthday, apply.user.SchoolName, apply.user.BriefInfo, apply.user.Company, apply.user.Position,
-			apply.user.Specialty, apply.user.HeadImgUrl)
+		rows.Scan(apply.Id, apply.State, apply.ApplyType, apply.User.Id, apply.User.NickName, apply.User.Sex, apply.User.Stage, apply.User.State,
+			apply.User.UserType, apply.User.Birthday, apply.User.SchoolName, apply.User.BriefInfo, apply.User.Company, apply.User.Position,
+			apply.User.Specialty, apply.User.HeadImgUrl)
 		share.Applys = append(share.Applys, &apply)
 	}
 }
