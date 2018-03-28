@@ -10,6 +10,7 @@ type User struct {
 	Sex 		int		`json:"sex"`
 	Stage 		int		`json:"stage"`
 	State 		int		`json:"state"`
+	Type 		int		`json:"type"`
 	UserType 	int		`json:"user_type"`
 	Birthday 	int64	`json:"birthday"`
 	SchoolName 	string	`json:"school_name"`
@@ -18,10 +19,12 @@ type User struct {
 	Position 	string	`json:"position"`
 	Specialty 	string	`json:"specialty"`
 	HeadImgUrl 	string	`json:"head_img_url"`
-	Applys 		[]*Share
-	Shares		[]*Share
-	Follows		[]*Attention
-	Fanss		[]*Attention
+	CoachId 	int64	`json:"coach_id"`
+	Coach		*Coach	`json:"coach"`
+	Applys 		[]*Share`json:"applys"`
+	Shares		[]*Share`json:"shares"`
+	Follows		[]*Attention`json:"follows"`
+	Fanss		[]*Attention`json:"fanss"`
 	CuAt
 }
 

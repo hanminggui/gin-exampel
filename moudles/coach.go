@@ -8,6 +8,5 @@ type Coach struct {
 	State 		int		`json:"state"`
 	CheckDesc 	string	`json:"check_desc"`
 	Specialty 	string	`json:"specialty"`
-	User 		User
 	CuAt
 }

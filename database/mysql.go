@@ -23,3 +23,7 @@ func init() {
 	}
 	log.Println("mysql conn ok")
 }
+
+func Insert(tableName string, data struct{}) (id int64, err error)  {
+
+}

@@ -15,7 +15,9 @@ type Share struct {
 	AuditState 	int		`json:"audit_state"`
 	LookesState int		`json:"lookes_state"`
 	IsDelete 	int		`json:"is_delete"`
-	Applys		[]*Apply
+	UserId 		int64	`json:"user_id"`
+	User 		*User	`json:"user"`
+	Applys		[]*Apply`json:"applys"`
 	CuAt
 }
 
