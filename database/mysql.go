@@ -3,8 +3,8 @@ package database
 import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
-	"log"
 	. "github.com/hanminggui/gin-exampel/config"
+	"log"
 )
 
 var SqlDB *sql.DB
@@ -24,6 +24,6 @@ func init() {
 	log.Println("mysql conn ok")
 }
 
-func Insert(tableName string, data struct{}) (id int64, err error)  {
+func Insert(tableName string, data struct{}) (id int64, err error) {
 
 }

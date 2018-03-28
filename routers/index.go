@@ -1,9 +1,9 @@
 package routers
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	. "github.com/hanminggui/gin-exampel/apis"
-	"fmt"
 )
 
 func InitRouter() *gin.Engine {
@@ -14,4 +14,3 @@ func InitRouter() *gin.Engine {
 	v1(api)
 	return router
 }
-
