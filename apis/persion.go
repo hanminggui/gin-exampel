@@ -6,9 +6,18 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+
+	db "github.com/hanminggui/gin-exampel/database"
 )
 
 func IndexApi(c *gin.Context) {
+	// debug
+	var  id *int64
+	err := db.QueryInt64(id, "select id from user limit 1;")
+	if err != nil {
+		log.Fatalln("报错了：", err)
+	}
+	log.Println("没报错 id=", id)
 	c.String(http.StatusOK, "It works")
 }
 
