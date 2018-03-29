@@ -26,4 +26,9 @@ func init() {
 
 func Insert(tableName string, data struct{}) (id int64, err error) {
 
+	return
+}
+
+func Count(sql string) (count int, err error) {
+
 }
