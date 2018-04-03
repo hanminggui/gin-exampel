@@ -27,16 +27,64 @@ func init() {
 	}
 	log.Println("mysql conn ok")
 }
-
-func Insert(tableName string, moudle struct{}) (id int64, err error) {
-
+type Map map[string]string
+type Maps []Map
+func Insert(tableName string, moudle interface{}) (id int64, err error) {
+	columns, values := getKV(moudle)
+	sqlCenter := ""
+	sqlCenter2 := ""
+	for i:=0; i<len(columns); i++ {
+		sqlCenter += columns[i]
+		sqlCenter2 += "?"
+		if i<len(columns)-1 {
+			sqlCenter += ", "
+			sqlCenter2 += ", "
+		}
+	}
+	r,e := SqlDB.Exec("INSERT "+tableName+"("+sqlCenter+") VALUE (" + sqlCenter2 + ")", values...)
+	err = e
+	log.Println(r,e)
 	return
 }
 
-func Update(tableName string, moudle struct{}) (err error) {
-
+func Update(tableName string, moudle interface{}) (err error) {
+	columns, values := getKV(moudle)
+	moudleValues := reflect.ValueOf(moudle).Elem()
+	if moudleValues.FieldByName("Id").String() == "0" {
+		Insert(tableName, moudle)
+		return
+	}
+	sqlCenter := ""
+	for i:=0; i<len(columns); i++ {
+		sqlCenter += columns[i] + "=?"
+		if i<len(columns)-1 {
+			sqlCenter += ", "
+		}
+	}
+	values = append(values, moudleValues.FieldByName("Id"))
+	r,e := SqlDB.Exec("UPDATE "+tableName+" SET " + sqlCenter + "WHERE id=?", values...)
+	err = e
+	log.Println(r,e)
 	return
 }
+
+func getKV(moudle interface{}) ([]string, []interface{}) {
+	columns := make([]string, 0)
+	values := make([]interface{}, 0)
+	moudleType := reflect.TypeOf(moudle).Elem()
+	moudleValues := reflect.ValueOf(moudle).Elem()
+	for i:=0; i< moudleValues.NumField(); i++ {
+		field := moudleType.Field(i)
+		kind := field.Type.Kind()
+		if kind == reflect.String || kind == reflect.Int || kind == reflect.Int64 && (moudleValues.Field(
+			i).String() != "0" && moudleValues.Field(i).String() != "") {
+			columns = append(columns, field.Tag.Get("json"))
+			values = append(values, moudleValues.Field(i))
+		}
+	}
+	return columns, values
+}
+
 /**
  * 查询单个值并赋值
  * @value 可以是任意类型 被赋值目标
@@ -52,70 +100,40 @@ func QueryValue(value interface{}, query string, args ...interface{}) (err error
  *
  */
 func QueryOne(moudle interface{}, query string, args ...interface{}) (err error) {
-	maps,err1 := QueryMap(query, args...)
+	mp,err1 := QueryMap(query, args...)
 	if err1 != nil {
 		err = err1
 		return
 	}
-	err = LoadMoudle(moudle, maps[0])
+	err = mp.Load(moudle)
 	return
 }
 
-func FindList2(moudles interface{}, query string, args ...interface{}) (err error) {
-	maps,err1 := QueryMap(query, args...)
-	if err1 != nil {
-		err = err1
-		return
-	}
-	var models []interface{}
-	for _,m := range maps{
-		name := reflect.TypeOf(moudles).Name()
-		v := reflect.New(reflect.TypeOf(ModMap[name]))
-		err = LoadMoudle(&v, m)
-		if err != nil {
-			return
-		}
-		models = append(models, v.Interface())
-	}
-	log.Println("models:", models)
-	moudles = append(models)
-	return
-}
+/**
+ * @moudles 对象切片的指针，需要先填充好对应数量的空对象再放进来
+ */
+//func (maps Maps) Load(moudles interface{}) (err error) {
+//	list := reflect.ValueOf(moudles).Elem()
+//	for i:=0; i<len(maps); i++{
+//		err = maps[i].Load(list.Index(i))
+//		if err != nil {
+//			return
+//		}
+//	}
+//	return
+//}
 
-func FindList(moudles interface{}, moudle interface{}, query string, args ...interface{}) (err error) {
-	maps,err1 := QueryMap(query, args...)
-	if err1 != nil {
-		err = err1
-		return
-	}
-	a0 := reflect.ValueOf(moudles).Elem()
-	e0 := make([]reflect.Value, 0)
-	for _,m := range maps{
-		//mi := moudle.(reflect.Type)
-		mi := reflect.New(reflect.TypeOf(&moudle).Elem()).Elem()
-		//mi := ModMap[a0.Type().Name()]
-		err = LoadMoudle(&mi, m)
-		if err != nil {
-			return
-		}
-		e0 = append(e0, reflect.ValueOf(mi))
-	}
-	val_arr1 := reflect.Append(a0, e0...)
-	a0.Set(val_arr1)
-	//a1 := reflect.TypeOf(moudles).Elem()
-	//e0 := make([]reflect.Value, 0)
-	//fmt.Print(a0.Type())
-	//fmt.Print("n2 is ", a1.Name())
-	//fmt.Print(a0.Elem().Type())
-	//fmt.Print(a0.Index(0).Type())
-	//e0 = append(e0, reflect.ValueOf(100))
+func QueryMap(query string, args ...interface{}) (result Map, err error) {
+	maps,err1 := QueryMaps(query, args...)
+	err = err1
+	result = maps[0]
 	return
 }
 
 /**
  * 查询结果组装成map
  */
-func QueryMap(query string, args ...interface{}) (results []map[string]string, err error) {
+func QueryMaps(query string, args ...interface{}) (results Maps, err error) {
 	log.Println("querying: ", query, args)
 	beginTime := time.Now()
 	rows, err := SqlDB.Query(query, args...)
@@ -159,7 +177,8 @@ func QueryMap(query string, args ...interface{}) (results []map[string]string, e
 	return
 }
 
-func LoadMoudle(moudle interface{}, mp map[string]string) (err error) {
+
+func (mp Map) Load(moudle interface{}) (err error) {
 	moudleType := reflect.TypeOf(moudle).Elem()
 	values := reflect.ValueOf(moudle).Elem()
 	for i:=0; i<values.NumField(); i++ {
@@ -185,12 +204,6 @@ func LoadMoudle(moudle interface{}, mp map[string]string) (err error) {
 			}
 			values.Field(i).SetInt(val)
 		}
-		//fmt.Print("	field type is :", field.Type)
-		//fmt.Print("	field type name is :", field.Type.Name())
-		//fmt.Print("	field name is :", field.Name)
-		//fmt.Print("	field json tag is :", field.Tag.Get("json"))
-		//fmt.Print("	field value is :", values.Field(i))
-		//fmt.Println()
 	}
 	return
 }

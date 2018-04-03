@@ -23,12 +23,20 @@ func IndexApi(c *gin.Context) {
 	//log.Println("没报错 id=", info)
 	user := []*User{}
 	//err := db.FindList(&user, User{}, "select * from user")
-	err := db.FindList2(&user, "select * from user")
-	//err = db.QueryOne(&user, "select * from user limit 1")
-	if err != nil {
-		log.Println("报错了：", err)
+
+	mps,err := db.QueryMaps("select * from user")
+	for i:=0; i< len(mps); i++ {
+		u:= new(User)
+		err = mps[i].Load(u)
+		if err != nil {
+			log.Println("报错了：", err)
+		}
+		user = append(user, u)
 	}
-	log.Println("user 数量", len(user))
+	//err = db.QueryOne(&user, "select * from user limit 1")
+
+	log.Println("user0,id", user[0].Id)
+	log.Println("user1,id", user[1].Id)
 	//log.Println("没报错 id=", user[1].Id)
 	c.String(http.StatusOK, "It works")
 }
