@@ -12,12 +12,24 @@ import (
 
 func IndexApi(c *gin.Context) {
 	// debug
-	var  id *int64
-	err := db.QueryInt64(id, "select id from user limit 1;")
+	//var  sex int
+	//err := db.QueryInt(&sex, "select sex from user limit 1")
+
+	//var info string
+	//err1 := db.QueryValue(&info, "select brief_info from user limit 1")
+	//if err1 != nil {
+	//	log.Println("报错了：", err1)
+	//}
+	//log.Println("没报错 id=", info)
+	user := []*User{}
+	//err := db.FindList(&user, User{}, "select * from user")
+	err := db.FindList2(&user, "select * from user")
+	//err = db.QueryOne(&user, "select * from user limit 1")
 	if err != nil {
-		log.Fatalln("报错了：", err)
+		log.Println("报错了：", err)
 	}
-	log.Println("没报错 id=", id)
+	log.Println("user 数量", len(user))
+	//log.Println("没报错 id=", user[1].Id)
 	c.String(http.StatusOK, "It works")
 }
 
