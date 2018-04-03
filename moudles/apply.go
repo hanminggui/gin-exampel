@@ -8,5 +8,6 @@ type Apply struct {
 	Share_id  int64  `json:"share_id"`
 	User      *User  `json:"user"`
 	Share     *Share `json:"share"`
-	CuAt
+	CreateAt int64 `json:"create_at"`
+	UpdateAt int64 `json:"update_at"`
 }

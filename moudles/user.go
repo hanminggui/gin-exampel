@@ -25,34 +25,31 @@ type User struct {
 	Shares     []*Share     `json:"shares"`
 	Follows    []*Attention `json:"follows"`
 	Fanss      []*Attention `json:"fanss"`
-	CuAt
+	CreateAt int64 `json:"create_at"`
+	UpdateAt int64 `json:"update_at"`
 }
 
 /**
  * 新增用户
  */
-func (user *User) AddUser() (id int64, err error) {
-	rs, err := db.SqlDB.Exec("INSERT INTO user(nick_name, sex, stage, state, user_type, birthday, school_name, brief_info, company, position, "+
-		"specialty, head_img_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-		user.NickName, user.Sex, user.Stage, user.State, user.UserType, user.Birthday, user.SchoolName, user.BriefInfo, user.Company, user.Position,
-		user.Specialty, user.HeadImgUrl)
-	if err != nil {
-		return
-	}
-	id, err = rs.LastInsertId()
+func (user *User) Add() (id int64, err error) {
+	id, err = db.Insert("user", user)
+	return
+}
+
+/**
+ * 更新用户
+ */
+func (user *User) Update() (err error) {
+	err = db.Update("user", user)
 	return
 }
 
 /**
  * 报名
  */
-func (user *User) Apply(share *Share, applyType int) (id int64, err error) {
-	rs, err := db.SqlDB.Exec("INSERT INTO apply(share_id, user_id, apply_type, state) VALUES (?, ?, ?, ?)",
-		share.Id, user.Id, applyType, 0)
-	if err != nil {
-		return
-	}
-	id, err = rs.LastInsertId()
+func (user *User) Apply(apply *Apply) (id int64, err error) {
+	id, err = db.Insert("apply", apply)
 	return
 }
 
@@ -60,41 +57,60 @@ func (user *User) Apply(share *Share, applyType int) (id int64, err error) {
  * 发布分享
  */
 func (user *User) AddShare(share *Share) (id int64, err error) {
-	rs, err := db.SqlDB.Exec("INSERT INTO share(title, start_at, end_at, amount, type, audit_state, lookes_state, is_delete) "+
-		"VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-		share.Title, share.StartAt, share.EndAt, share.Amount, share.Type, share.AuditState, share.LookesState, share.IsDelete)
-	if err != nil {
-		return
+	id,err = db.Insert("share", share)
+	if err == nil {
+		user.Shares = append(user.Shares, share)
 	}
-	id, err = rs.LastInsertId()
-	share.Id = id
-	user.Shares = append(user.Shares, share)
-	return
-}
-
-/**
- * 新增粉丝
- */
-func (user *User) AddFans(fans *Attention) (id int64, err error) {
-	rs, err := db.SqlDB.Exec("INSERT INTO attention(user_id, to_user_id, relation) VALUES (?, ?, ?)", fans.User.Id, user.Id, 0)
-	if err != nil {
-		return
-	}
-	id, err = rs.LastInsertId()
-	user.Fanss = append(user.Fanss, fans)
 	return
 }
 
 /**
  * 新增关注
  */
-func (user *User) AddFollow(follow *Attention) (id int64, err error) {
-	rs, err := db.SqlDB.Exec("INSERT INTO attention(user_id, to_user_id, relation) VALUES (?, ?, ?)", user.Id, follow.User.Id, 0)
-	if err != nil {
+func (user *User) Follow(toUser *User) (id int64, err error) {
+	follow := &Attention{}
+	err = db.QueryOne(follow, "select * from attention where user_id=? and to_user_id=?", user.Id, toUser.Id)
+	check(err)
+	reFollow := &Attention{}
+	err = db.QueryOne(reFollow, "select * from attention where user_id=? and to_user_id=? and state=1", toUser.Id, user.Id)
+	follow.State = 1
+	if follow.Id == 0 {
+		follow.UserId = user.Id
+		follow.ToUserId = toUser.Id
+	}
+	if reFollow.Id > 0 {
+		follow.Relation = 2
+		reFollow.Relation = 2
+		db.Insert("attention", reFollow)
+	}
+	err = db.Update("attention", follow)
+	if err == nil {
+		user.Follows = append(user.Follows, follow)
+		id = follow.Id
+	}
+	return
+}
+
+/**
+ * 取消关注
+ */
+func (user *User) UnFollow(toUser *User) (err error) {
+	follow := &Attention{}
+	err = db.QueryOne(follow, "select * from attention where user_id=? and to_user_id=?", user.Id, toUser.Id)
+	check(err)
+	if follow.Id == 0 { // 如果没有关注过 返回
 		return
 	}
-	id, err = rs.LastInsertId()
-	user.Follows = append(user.Follows, follow)
+	// 取消关注逻辑
+	follow.State = 0
+	reFollow := &Attention{}
+	err = db.QueryOne(reFollow, "select * from attention where user_id=? and to_user_id=? and state=1", toUser.Id, user.Id)
+	if reFollow.Id > 0 { // 如果对方关注了我 互相关注状态更新为 单向关注
+		follow.Relation = 1
+		reFollow.Relation = 1
+		db.Update("attention", reFollow)
+	}
+	err = db.Update("attention", follow)
 	return
 }
 
@@ -102,45 +118,38 @@ func (user *User) AddFollow(follow *Attention) (id int64, err error) {
  * 获取用户信息
  */
 func (user *User) GetDetail() {
-	row := db.SqlDB.QueryRow("SELECT * from user where id=?", user.Id)
-	err := row.Scan(user.Id, user.NickName, user.Sex, user.Stage, user.State, user.UserType, user.Birthday, user.SchoolName, user.BriefInfo,
-		user.Company, user.Position, user.Specialty, user.HeadImgUrl)
-	if err != nil {
-		panic(err)
-	}
+	err := db.QueryOne(user, "SELECT * from user where id=?", user.Id)
+	check(err)
 }
 
 /**
  * 获取用户的分享列表
  */
 func (user *User) GetShares() {
-	rows, err := db.SqlDB.Query("SELECT * from share where user_id=?", user.Id)
-	if err != nil {
-		panic(err)
+	mps, err := db.QueryMaps("SELECT * from share where user_id=?", user.Id)
+	check(err)
+	// 测试不初始化是否能用
+	//user.Shares = make([]*Share, 0)
+	for i:=0; i<len(mps); i++ {
+		s := new(Share)
+		err := mps[i].Load(s)
+		check(err)
+		user.Shares = append(user.Shares, s)
 	}
-	user.Shares = make([]*Share, 0)
-	for rows.Next() {
-		share := Share{}
-		rows.Scan(share.Id, share.Title, share.StartAt, share.EndAt, share.Amount, share.Type, share.AuditState, share.LookesState, share.IsDelete)
-		user.Shares = append(user.Shares, &share)
-	}
+
 }
 
 /**
  * 获取用户的关注列表
  */
 func (user *User) GetFollows() {
-	rows, err := db.SqlDB.Query("SELECT * from attention a, user u where a.user_id=? and a.to_user_id=u.id", user.Id)
-	if err != nil {
-		panic(err)
-	}
-	user.Follows = make([]*Attention, 0)
-	for rows.Next() {
-		follow := Attention{}
-		rows.Scan(follow.User.Id, follow.User.NickName, follow.User.Stage, follow.User.State, follow.User.UserType, follow.User.Birthday,
-			follow.User.SchoolName, follow.User.BriefInfo, follow.User.Company, follow.User.Position, follow.User.Specialty, follow.User.HeadImgUrl,
-			follow.State, follow.Relation)
-		user.Follows = append(user.Follows, &follow)
+	mps,err := db.QueryMaps("SELECT * from attention a, user u where a.user_id=? and a.to_user_id=u.id", user.Id)
+	check(err)
+	for i:=0; i<len(mps); i++ {
+		attention := new(Attention)
+		err := mps[i].Load(attention)
+		check(err)
+		user.Follows = append(user.Follows, attention)
 	}
 }
 
@@ -148,16 +157,12 @@ func (user *User) GetFollows() {
  * 获取用户的粉丝列表
  */
 func (user *User) GetFanss() {
-	rows, err := db.SqlDB.Query("SELECT * from attention a, user u where a.to_user_id=? and a.user_id=u.id", user.Id)
-	if err != nil {
-		panic(err)
-	}
-	user.Fanss = make([]*Attention, 0)
-	for rows.Next() {
-		fans := Attention{}
-		rows.Scan(fans.User.Id, fans.User.NickName, fans.User.Stage, fans.User.State, fans.User.UserType, fans.User.Birthday,
-			fans.User.SchoolName, fans.User.BriefInfo, fans.User.Company, fans.User.Position, fans.User.Specialty, fans.User.HeadImgUrl,
-			fans.State, fans.Relation)
-		user.Fanss = append(user.Fanss, &fans)
+	mps, err := db.QueryMaps("SELECT * from attention a, user u where a.to_user_id=? and a.user_id=u.id", user.Id)
+	check(err)
+	for i:=0; i<len(mps); i++ {
+		attention := new(Attention)
+		err := mps[i].Load(attention)
+		check(err)
+		user.Fanss = append(user.Fanss, attention)
 	}
 }

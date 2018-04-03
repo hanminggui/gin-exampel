@@ -8,5 +8,6 @@ type Coach struct {
 	State     int    `json:"state"`
 	CheckDesc string `json:"check_desc"`
 	Specialty string `json:"specialty"`
-	CuAt
+	CreateAt int64 `json:"create_at"`
+	UpdateAt int64 `json:"update_at"`
 }

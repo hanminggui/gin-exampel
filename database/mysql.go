@@ -29,6 +29,7 @@ func init() {
 }
 type Map map[string]string
 type Maps []Map
+
 func Insert(tableName string, moudle interface{}) (id int64, err error) {
 	columns, values := getKV(moudle)
 	sqlCenter := ""
@@ -41,16 +42,31 @@ func Insert(tableName string, moudle interface{}) (id int64, err error) {
 			sqlCenter2 += ", "
 		}
 	}
-	r,e := SqlDB.Exec("INSERT "+tableName+"("+sqlCenter+") VALUE (" + sqlCenter2 + ")", values...)
-	err = e
+	// 增加创建时间
+	columns = append(columns, "create_at")
+	values = append(values, time.Now().Unix())
+	sql := "INSERT "+tableName+"("+sqlCenter+") VALUE (" + sqlCenter2 + ")"
+	log.Println("querying: ", sql, values)
+	beginTime := time.Now()
+	r,e := SqlDB.Exec(sql, values...)
+	if e != nil {
+		err = e
+		return
+	}
+	endTime := time.Now()
+	rowlen,err := r.RowsAffected()
+	log.Printf("used %d ms total rows: %d\n", endTime.UnixNano()/1000000 - beginTime.UnixNano()/1000000, rowlen)
+
 	log.Println(r,e)
+	id, err = r.LastInsertId()
 	return
 }
 
 func Update(tableName string, moudle interface{}) (err error) {
 	columns, values := getKV(moudle)
 	moudleValues := reflect.ValueOf(moudle).Elem()
-	if moudleValues.FieldByName("Id").String() == "0" {
+	id,_ := strconv.ParseInt(moudleValues.FieldByName("Id").String(), 10, 64)
+	if id <= 0 {
 		Insert(tableName, moudle)
 		return
 	}
@@ -61,10 +77,18 @@ func Update(tableName string, moudle interface{}) (err error) {
 			sqlCenter += ", "
 		}
 	}
-	values = append(values, moudleValues.FieldByName("Id"))
-	r,e := SqlDB.Exec("UPDATE "+tableName+" SET " + sqlCenter + "WHERE id=?", values...)
-	err = e
-	log.Println(r,e)
+
+	values = append(values, id)
+	sql := "UPDATE "+tableName+" SET " + sqlCenter + "WHERE id=?"
+	log.Println("querying: ", sql, values)
+	beginTime := time.Now()
+	r,e := SqlDB.Exec(sql, values...)
+	if e != nil {
+		err = e
+	}
+	endTime := time.Now()
+	rowlen,err := r.RowsAffected()
+	log.Printf("used %d ms total rows: %d\n", endTime.UnixNano()/1000000 - beginTime.UnixNano()/1000000, rowlen)
 	return
 }
 
@@ -76,12 +100,15 @@ func getKV(moudle interface{}) ([]string, []interface{}) {
 	for i:=0; i< moudleValues.NumField(); i++ {
 		field := moudleType.Field(i)
 		kind := field.Type.Kind()
-		if kind == reflect.String || kind == reflect.Int || kind == reflect.Int64 && (moudleValues.Field(
-			i).String() != "0" && moudleValues.Field(i).String() != "") {
+		if kind == reflect.String || kind == reflect.Int || kind == reflect.Int64 && (moudleValues.Field(i).String() != "0" && moudleValues.Field(i).String() != "") {
+			log.Println(kind, "		", moudleValues.Field(i).String())
 			columns = append(columns, field.Tag.Get("json"))
 			values = append(values, moudleValues.Field(i))
 		}
 	}
+	// 增加修改时间
+	columns = append(columns, "update_at")
+	values = append(values, time.Now().Unix())
 	return columns, values
 }
 
@@ -126,7 +153,10 @@ func QueryOne(moudle interface{}, query string, args ...interface{}) (err error)
 func QueryMap(query string, args ...interface{}) (result Map, err error) {
 	maps,err1 := QueryMaps(query, args...)
 	err = err1
-	result = maps[0]
+	result = Map{}
+	if len(maps) > 0 {
+		result = maps[0]
+	}
 	return
 }
 

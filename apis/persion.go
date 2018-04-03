@@ -6,39 +6,14 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-
-	db "github.com/hanminggui/gin-exampel/database"
-)
+	)
 
 func IndexApi(c *gin.Context) {
-	// debug
-	//var  sex int
-	//err := db.QueryInt(&sex, "select sex from user limit 1")
-
-	//var info string
-	//err1 := db.QueryValue(&info, "select brief_info from user limit 1")
-	//if err1 != nil {
-	//	log.Println("报错了：", err1)
-	//}
-	//log.Println("没报错 id=", info)
-	user := []*User{}
-	//err := db.FindList(&user, User{}, "select * from user")
-
-	mps,err := db.QueryMaps("select * from user")
-	for i:=0; i< len(mps); i++ {
-		u:= new(User)
-		err = mps[i].Load(u)
-		if err != nil {
-			log.Println("报错了：", err)
-		}
-		user = append(user, u)
-	}
-	//err = db.QueryOne(&user, "select * from user limit 1")
-
-	log.Println("user0,id", user[0].Id)
-	log.Println("user1,id", user[1].Id)
-	//log.Println("没报错 id=", user[1].Id)
-	c.String(http.StatusOK, "It works")
+	u := User{}
+	u.Id = 3
+	u.NickName = "第三个用户"
+	u.Update()
+	c.String(http.StatusOK, "u name is " + u.NickName)
 }
 
 func AddPersion(c *gin.Context) {

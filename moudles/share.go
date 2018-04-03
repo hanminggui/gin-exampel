@@ -17,7 +17,8 @@ type Share struct {
 	UserId      int64    `json:"user_id"`
 	User        *User    `json:"user"`
 	Applys      []*Apply `json:"applys"`
-	CuAt
+	CreateAt int64 `json:"create_at"`
+	UpdateAt int64 `json:"update_at"`
 }
 
 /**
