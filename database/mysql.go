@@ -32,6 +32,8 @@ type Maps []Map
 
 func Insert(tableName string, moudle interface{}) (id int64, err error) {
 	columns, values := getKV(moudle)
+	columns = append(columns, "create_at")
+	values = append(values, time.Now().Unix())
 	sqlCenter := ""
 	sqlCenter2 := ""
 	for i:=0; i<len(columns); i++ {
@@ -43,8 +45,6 @@ func Insert(tableName string, moudle interface{}) (id int64, err error) {
 		}
 	}
 	// 增加创建时间
-	columns = append(columns, "create_at")
-	values = append(values, time.Now().Unix())
 	sql := "INSERT "+tableName+"("+sqlCenter+") VALUE (" + sqlCenter2 + ")"
 	log.Println("querying: ", sql, values)
 	beginTime := time.Now()
@@ -65,9 +65,9 @@ func Insert(tableName string, moudle interface{}) (id int64, err error) {
 func Update(tableName string, moudle interface{}) (err error) {
 	columns, values := getKV(moudle)
 	moudleValues := reflect.ValueOf(moudle).Elem()
-	id,_ := strconv.ParseInt(moudleValues.FieldByName("Id").String(), 10, 64)
+	id := moudleValues.FieldByName("Id").Int()
 	if id <= 0 {
-		Insert(tableName, moudle)
+		_,err = Insert(tableName, moudle)
 		return
 	}
 	sqlCenter := ""
@@ -79,12 +79,13 @@ func Update(tableName string, moudle interface{}) (err error) {
 	}
 
 	values = append(values, id)
-	sql := "UPDATE "+tableName+" SET " + sqlCenter + "WHERE id=?"
+	sql := "UPDATE "+tableName+" SET " + sqlCenter + " WHERE id=?"
 	log.Println("querying: ", sql, values)
 	beginTime := time.Now()
 	r,e := SqlDB.Exec(sql, values...)
 	if e != nil {
 		err = e
+		return
 	}
 	endTime := time.Now()
 	rowlen,err := r.RowsAffected()
@@ -100,11 +101,27 @@ func getKV(moudle interface{}) ([]string, []interface{}) {
 	for i:=0; i< moudleValues.NumField(); i++ {
 		field := moudleType.Field(i)
 		kind := field.Type.Kind()
-		if kind == reflect.String || kind == reflect.Int || kind == reflect.Int64 && (moudleValues.Field(i).String() != "0" && moudleValues.Field(i).String() != "") {
-			log.Println(kind, "		", moudleValues.Field(i).String())
-			columns = append(columns, field.Tag.Get("json"))
-			values = append(values, moudleValues.Field(i))
+		switch kind {
+		case reflect.String:
+			if str := moudleValues.Field(i).String(); len(str) > 0 {
+				columns = append(columns, field.Tag.Get("json"))
+				values = append(values, moudleValues.Field(i).String())
+			}
+		case reflect.Int:
+			if number,e := strconv.Atoi(moudleValues.Field(i).String()); e == nil {
+				columns = append(columns, field.Tag.Get("json"))
+				values = append(values, number)
+			}
+		case reflect.Int64:
+			if number,e := strconv.ParseInt(moudleValues.Field(i).String(), 10, 64); e == nil {
+				columns = append(columns, field.Tag.Get("json"))
+				values = append(values, number)
+			}
 		}
+		//if kind == reflect.String || kind == reflect.Int || kind == reflect.Int64 && (moudleValues.Field(i).String() != "0" && moudleValues.Field(i).String() != "") {
+		//	log.Println(kind, "		", moudleValues.Field(i).String())
+		//
+		//}
 	}
 	// 增加修改时间
 	columns = append(columns, "update_at")

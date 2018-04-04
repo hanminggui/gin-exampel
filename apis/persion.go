@@ -11,8 +11,12 @@ import (
 func IndexApi(c *gin.Context) {
 	u := User{}
 	u.Id = 3
-	u.NickName = "第三个用户"
-	u.Update()
+	u.NickName = "第san个用户"
+	err := u.Update()
+	if err != nil {
+		log.Panicln(err.Error())
+	}
+	u.GetDetail()
 	c.String(http.StatusOK, "u name is " + u.NickName)
 }
 

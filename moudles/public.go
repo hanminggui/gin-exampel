@@ -3,6 +3,7 @@ package moudles
 import (
 	db "github.com/hanminggui/gin-exampel/database"
 	"reflect"
+	"log"
 )
 
 func init()  {
@@ -16,6 +17,6 @@ func init()  {
 
 func check(err error)  {
 	if err != nil {
-		panic(err)
+		log.Panicln(err.Error())
 	}
 }
