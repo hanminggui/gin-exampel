@@ -33,7 +33,7 @@ type Maps []Map
 func Insert(tableName string, moudle interface{}) (id int64, err error) {
 	columns, values := getKV(moudle)
 	columns = append(columns, "create_at")
-	values = append(values, time.Now().Unix())
+	values = append(values, values[len(values)-1])
 	sqlCenter := ""
 	sqlCenter2 := ""
 	for i:=0; i<len(columns); i++ {
@@ -100,21 +100,23 @@ func getKV(moudle interface{}) ([]string, []interface{}) {
 	moudleValues := reflect.ValueOf(moudle).Elem()
 	for i:=0; i< moudleValues.NumField(); i++ {
 		field := moudleType.Field(i)
+		name := field.Tag.Get("json")
 		kind := field.Type.Kind()
+
 		switch kind {
 		case reflect.String:
 			if str := moudleValues.Field(i).String(); len(str) > 0 {
-				columns = append(columns, field.Tag.Get("json"))
+				columns = append(columns, name)
 				values = append(values, moudleValues.Field(i).String())
 			}
 		case reflect.Int:
-			if number,e := strconv.Atoi(moudleValues.Field(i).String()); e == nil {
-				columns = append(columns, field.Tag.Get("json"))
+			if number := moudleValues.Field(i).Int(); number > 0 {
+				columns = append(columns, name)
 				values = append(values, number)
 			}
 		case reflect.Int64:
-			if number,e := strconv.ParseInt(moudleValues.Field(i).String(), 10, 64); e == nil {
-				columns = append(columns, field.Tag.Get("json"))
+			if number := moudleValues.Field(i).Int(); number > 0 {
+				columns = append(columns, name)
 				values = append(values, number)
 			}
 		}

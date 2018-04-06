@@ -15,7 +15,7 @@ func init()  {
 	}
 }
 
-func check(err error)  {
+func Check(err error)  {
 	if err != nil {
 		log.Panicln(err.Error())
 	}

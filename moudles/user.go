@@ -11,7 +11,6 @@ type User struct {
 	Stage      int          `json:"stage"`
 	State      int          `json:"state"`
 	Type       int          `json:"type"`
-	UserType   int          `json:"user_type"`
 	Birthday   int64        `json:"birthday"`
 	SchoolName string       `json:"school_name"`
 	BriefInfo  string       `json:"brief_info"`
@@ -70,7 +69,7 @@ func (user *User) AddShare(share *Share) (id int64, err error) {
 func (user *User) Follow(toUser *User) (id int64, err error) {
 	follow := &Attention{}
 	err = db.QueryOne(follow, "select * from attention where user_id=? and to_user_id=?", user.Id, toUser.Id)
-	check(err)
+	Check(err)
 	reFollow := &Attention{}
 	err = db.QueryOne(reFollow, "select * from attention where user_id=? and to_user_id=? and state=1", toUser.Id, user.Id)
 	follow.State = 1
@@ -97,7 +96,7 @@ func (user *User) Follow(toUser *User) (id int64, err error) {
 func (user *User) UnFollow(toUser *User) (err error) {
 	follow := &Attention{}
 	err = db.QueryOne(follow, "select * from attention where user_id=? and to_user_id=?", user.Id, toUser.Id)
-	check(err)
+	Check(err)
 	if follow.Id == 0 { // 如果没有关注过 返回
 		return
 	}
@@ -119,7 +118,13 @@ func (user *User) UnFollow(toUser *User) (err error) {
  */
 func (user *User) GetDetail() {
 	err := db.QueryOne(user, "SELECT * from user where id=?", user.Id)
-	check(err)
+	Check(err)
+}
+
+func (user *User) Delete()  {
+	user.State=1
+	err := db.Update("user", user)
+	Check(err)
 }
 
 /**
@@ -127,13 +132,13 @@ func (user *User) GetDetail() {
  */
 func (user *User) GetShares() {
 	mps, err := db.QueryMaps("SELECT * from share where user_id=?", user.Id)
-	check(err)
+	Check(err)
 	// 测试不初始化是否能用
 	//user.Shares = make([]*Share, 0)
 	for i:=0; i<len(mps); i++ {
 		s := new(Share)
 		err := mps[i].Load(s)
-		check(err)
+		Check(err)
 		user.Shares = append(user.Shares, s)
 	}
 
@@ -144,11 +149,11 @@ func (user *User) GetShares() {
  */
 func (user *User) GetFollows() {
 	mps,err := db.QueryMaps("SELECT * from attention a, user u where a.user_id=? and a.to_user_id=u.id", user.Id)
-	check(err)
+	Check(err)
 	for i:=0; i<len(mps); i++ {
 		attention := new(Attention)
 		err := mps[i].Load(attention)
-		check(err)
+		Check(err)
 		user.Follows = append(user.Follows, attention)
 	}
 }
@@ -158,11 +163,11 @@ func (user *User) GetFollows() {
  */
 func (user *User) GetFanss() {
 	mps, err := db.QueryMaps("SELECT * from attention a, user u where a.to_user_id=? and a.user_id=u.id", user.Id)
-	check(err)
+	Check(err)
 	for i:=0; i<len(mps); i++ {
 		attention := new(Attention)
 		err := mps[i].Load(attention)
-		check(err)
+		Check(err)
 		user.Fanss = append(user.Fanss, attention)
 	}
 }
