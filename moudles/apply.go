@@ -1,13 +1,39 @@
 package moudles
 
+import (
+	db "github.com/hanminggui/gin-exampel/database"
+)
+
 type Apply struct {
 	Id        int64  `json:"id"`
 	ApplyType int    `json:"apply_type"`
 	State     int    `json:"state"`
 	UserId    int64  `json:"user_id"`
-	Share_id  int64  `json:"share_id"`
+	ShareId  int64  `json:"share_id"`
 	User      *User  `json:"user"`
 	Share     *Share `json:"share"`
 	CreateAt int64 `json:"create_at"`
 	UpdateAt int64 `json:"update_at"`
+}
+
+/**
+ * 获取用户信息
+ */
+func (apply *Apply) GetDetail() {
+	err := db.QueryOne(apply, "SELECT * from apply where id=?", apply.Id)
+	Check(err)
+	apply.User = new(User)
+	err = db.QueryOne(apply.User, "select * from user where id=?", apply.UserId)
+	Check(err)
+	apply.Share = new(Share)
+	err = db.QueryOne(apply.Share, "select * from user where id=?", apply.ShareId)
+	Check(err)
+}
+
+/**
+ * 新增用户
+ */
+func (apply *Apply) Add() (id int64, err error) {
+	id, err = db.Insert("apply", apply)
+	return
 }

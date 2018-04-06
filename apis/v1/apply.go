@@ -7,26 +7,26 @@ import (
 	"strconv"
 )
 
-func GetOneUser(c *gin.Context) {
+func GetOneApply(c *gin.Context) {
 	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
-	user := User{Id: id}
-	user.GetDetail()
-	c.JSON(http.StatusOK, user)
+	apply := Apply{Id: id}
+	apply.GetDetail()
+	c.JSON(http.StatusOK, apply)
 }
 
 
-func AddUser(c *gin.Context) {
-	var user User
-	err := c.BindJSON(&user)
+func AddApply(c *gin.Context) {
+	var apply Apply
+	err := c.BindJSON(&apply)
 	Check(err)
-	id, err := user.Add()
+	id, err := apply.Add()
 	Check(err)
-	user.Id = id
-	user.GetDetail()
-	c.JSON(http.StatusOK, user)
+	apply.Id = id
+	apply.GetDetail()
+	c.JSON(http.StatusOK, apply)
 }
 
-func DeleteUser(c *gin.Context)  {
+func DeleteApply(c *gin.Context)  {
 	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
 	user := User{Id: id}
 	user.Delete()

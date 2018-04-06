@@ -56,8 +56,6 @@ func Insert(tableName string, moudle interface{}) (id int64, err error) {
 	endTime := time.Now()
 	rowlen,err := r.RowsAffected()
 	log.Printf("used %d ms total rows: %d\n", endTime.UnixNano()/1000000 - beginTime.UnixNano()/1000000, rowlen)
-
-	log.Println(r,e)
 	id, err = r.LastInsertId()
 	return
 }
