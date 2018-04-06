@@ -16,9 +16,6 @@ type Apply struct {
 	UpdateAt int64 `json:"update_at"`
 }
 
-/**
- * 获取用户信息
- */
 func (apply *Apply) GetDetail() {
 	err := db.QueryOne(apply, "SELECT * from apply where id=?", apply.Id)
 	Check(err)
@@ -30,9 +27,6 @@ func (apply *Apply) GetDetail() {
 	Check(err)
 }
 
-/**
- * 新增用户
- */
 func (apply *Apply) Add() (id int64, err error) {
 	id, err = db.Insert("apply", apply)
 	return

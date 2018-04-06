@@ -2,6 +2,7 @@ package moudles
 
 import (
 	db "github.com/hanminggui/gin-exampel/database"
+	"os/user"
 )
 
 type Share struct {
@@ -25,15 +26,32 @@ type Share struct {
  * 获取分享信息
  */
 func (share *Share) GetDetail() {
-	row := db.SqlDB.QueryRow("SELECT * from share where id=?", share.Id)
-	err := row.Scan(share.Title, share.StartAt, share.EndAt, share.Amount, share.Type, share.AuditState, share.LookesState, share.IsDelete)
-	if err != nil {
-		panic(err)
-	}
+	err := db.QueryOne(share, "SELECT * from share where id=?", share.Id)
+	Check(err)
 }
 
 /**
  * 获取报名列表
  */
 func (share *Share) GetApplys() {
+	share.Applys = make([]*Apply, 0)
+	maps,err := db.QueryMaps("SELECT * FROM apply WHERE share_id=?", share.Id)
+	Check(err)
+	for i:=0; i<len(maps); i++ {
+		apply := new(Apply)
+		err = maps[i].Load(apply)
+		Check(err)
+		share.Applys = append(share.Applys, apply)
+	}
+}
+
+func (share *Share) Add() (id int64, err error) {
+	id,err = db.Insert("share", share)
+	return
+}
+
+func (share *Share) Delete()  {
+	share.IsDelete=1
+	err := db.Update("share", share)
+	Check(err)
 }

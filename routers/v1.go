@@ -9,6 +9,7 @@ func v1(router *gin.RouterGroup) {
 	v1 := router.Group("/v1")
 	user(v1)
 	apply(v1)
+	share(v1)
 }
 
 func user(router *gin.RouterGroup)  {
@@ -20,5 +21,10 @@ func user(router *gin.RouterGroup)  {
 func apply(router *gin.RouterGroup)  {
 	router.GET("/apply/:id", GetOneApply)
 	router.POST("/apply", AddApply)
-	router.DELETE("/apply/:id", DeleteApply)
+}
+
+func share(router *gin.RouterGroup)  {
+	router.GET("/share/:id", GetOneShare)
+	router.POST("/share", AddShare)
+	router.DELETE("/share/:id", DeleteShare)
 }

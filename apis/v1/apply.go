@@ -26,9 +26,3 @@ func AddApply(c *gin.Context) {
 	c.JSON(http.StatusOK, apply)
 }
 
-func DeleteApply(c *gin.Context)  {
-	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
-	user := User{Id: id}
-	user.Delete()
-	c.JSON(http.StatusOK, user)
-}
