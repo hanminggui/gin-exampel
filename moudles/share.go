@@ -2,7 +2,6 @@ package moudles
 
 import (
 	db "github.com/hanminggui/gin-exampel/database"
-	"os/user"
 )
 
 type Share struct {
