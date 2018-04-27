@@ -2,7 +2,6 @@ package moudles
 
 import (
 	db "github.com/hanminggui/gin-exampel/database"
-	"os/user"
 )
 
 type Share struct {
@@ -54,4 +53,17 @@ func (share *Share) Delete()  {
 	share.IsDelete=1
 	err := db.Update("share", share)
 	Check(err)
+}
+
+func GetShares(limit, offset int) (shares []*Share) {
+	shares = make([]*Share, 0)
+	maps,err := db.QueryMaps("SELECT * FROM share limit ?,?", offset, limit)
+	Check(err)
+	for i:=0; i<len(maps); i++ {
+		share := new(Share)
+		err = maps[i].Load(share)
+		Check(err)
+		shares = append(shares, share)
+	}
+	return
 }

@@ -14,7 +14,6 @@ func GetOneApply(c *gin.Context) {
 	c.JSON(http.StatusOK, apply)
 }
 
-
 func AddApply(c *gin.Context) {
 	var apply Apply
 	err := c.BindJSON(&apply)

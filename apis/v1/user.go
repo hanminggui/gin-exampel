@@ -32,3 +32,31 @@ func DeleteUser(c *gin.Context)  {
 	user.Delete()
 	c.JSON(http.StatusOK, user)
 }
+
+func GetUserShares(c *gin.Context)  {
+	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
+	user := User{Id: id}
+	user.GetShares()
+	c.JSON(http.StatusOK, gin.H{"shares": user.Shares})
+}
+
+func GetUserApplys(c *gin.Context)  {
+	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
+	user := User{Id: id}
+	user.GetApplys()
+	c.JSON(http.StatusOK, gin.H{"applys": user.Applys})
+}
+
+func GetUserFanss(c *gin.Context)  {
+	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
+	user := User{Id: id}
+	user.GetFanss()
+	c.JSON(http.StatusOK, gin.H{"fanss": user.Fanss})
+}
+
+func GetUserFollows(c *gin.Context)  {
+	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
+	user := User{Id: id}
+	user.GetFollows()
+	c.JSON(http.StatusOK, gin.H{"follows": user.Follows})
+}

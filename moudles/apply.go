@@ -31,3 +31,15 @@ func (apply *Apply) Add() (id int64, err error) {
 	id, err = db.Insert("apply", apply)
 	return
 }
+
+func (apply *Apply) Pass() (err error) {
+	apply.State = 2
+	err = db.Update("apply", apply)
+	return
+}
+
+func (apply *Apply) Down() (err error) {
+	apply.State = 3
+	err = db.Update("apply", apply)
+	return
+}
