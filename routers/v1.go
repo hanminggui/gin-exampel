@@ -28,3 +28,28 @@ func share(router *gin.RouterGroup)  {
 	router.POST("/share", AddShare)
 	router.DELETE("/share/:id", DeleteShare)
 }
+
+/**
+创建用户
+修改用户
+获取用户
+
+用户发布的分享列表
+用户的报名列表
+用户的粉丝列表
+用户的关注列表
+
+
+分享列表
+分享的详情
+发布分享
+修改分享
+删除分享
+
+报名
+修改我的分享里的报名
+
+关注
+取消关注
+
+ */
