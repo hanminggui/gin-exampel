@@ -22,12 +22,24 @@ func (apply *Apply) GetDetail() {
 	apply.User = new(User)
 	err = db.QueryOne(apply.User, "select * from user where id=?", apply.UserId)
 	Check(err)
-	apply.Share = new(Share)
-	err = db.QueryOne(apply.Share, "select * from user where id=?", apply.ShareId)
-	Check(err)
+	//apply.Share = new(Share)
+	//err = db.QueryOne(apply.Share, "select * from user where id=?", apply.ShareId)
+	//Check(err)
 }
 
 func (apply *Apply) Add() (id int64, err error) {
 	id, err = db.Insert("apply", apply)
+	return
+}
+
+func (apply *Apply) Pass() (err error) {
+	apply.State = 2
+	err = db.Update("apply", apply)
+	return
+}
+
+func (apply *Apply) Down() (err error) {
+	apply.State = 3
+	err = db.Update("apply", apply)
 	return
 }

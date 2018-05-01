@@ -4,11 +4,10 @@ import (
 	"github.com/gin-gonic/gin"
 	. "github.com/hanminggui/gin-exampel/moudles"
 	"net/http"
-	"strconv"
 )
 
 func GetOneUser(c *gin.Context) {
-	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
+	id := getInt64(c, "id")
 	user := User{Id: id}
 	user.GetDetail()
 	c.JSON(http.StatusOK, user)
@@ -27,8 +26,52 @@ func AddUser(c *gin.Context) {
 }
 
 func DeleteUser(c *gin.Context)  {
-	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
+	id := getInt64(c, "id")
 	user := User{Id: id}
 	user.Delete()
 	c.JSON(http.StatusOK, user)
+}
+
+func GetUserShares(c *gin.Context)  {
+	id := getInt64(c, "id")
+	user := User{Id: id}
+	user.GetShares()
+	c.JSON(http.StatusOK, user.Shares)
+}
+
+func GetUserApplys(c *gin.Context)  {
+	id := getInt64(c, "id")
+	user := User{Id: id}
+	user.GetApplys()
+	c.JSON(http.StatusOK, user.Applys)
+}
+
+func GetUserFanss(c *gin.Context)  {
+	id := getInt64(c, "id")
+	user := User{Id: id}
+	user.GetFanss()
+	c.JSON(http.StatusOK, user.Fanss)
+}
+
+func GetUserFollows(c *gin.Context)  {
+	id := getInt64(c, "id")
+	user := User{Id: id}
+	user.GetFollows()
+	c.JSON(http.StatusOK, user.Follows)
+}
+
+func Follow(c *gin.Context)  {
+	userId := getInt64(c, "userId")
+	toUserId := getInt64(c, "toUserId")
+	attention := Attention{UserId: userId, ToUserId: toUserId}
+	attention.Follow()
+	c.JSON(http.StatusOK, attention)
+}
+
+func UnFollow(c *gin.Context)  {
+	userId := getInt64(c, "userId")
+	toUserId := getInt64(c, "toUserId")
+	attention := Attention{UserId: userId, ToUserId: toUserId}
+	attention.UnFollow()
+	c.JSON(http.StatusOK, attention)
 }

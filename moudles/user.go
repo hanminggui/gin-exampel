@@ -20,7 +20,7 @@ type User struct {
 	HeadImgUrl string       `json:"head_img_url"`
 	CoachId    int64        `json:"coach_id"`
 	Coach      *Coach       `json:"coach"`
-	Applys     []*Share     `json:"applys"`
+	Applys     []*Apply     `json:"applys"`
 	Shares     []*Share     `json:"shares"`
 	Follows    []*Attention `json:"follows"`
 	Fanss      []*Attention `json:"fanss"`
@@ -133,15 +133,28 @@ func (user *User) Delete()  {
 func (user *User) GetShares() {
 	mps, err := db.QueryMaps("SELECT * from share where user_id=?", user.Id)
 	Check(err)
-	// 测试不初始化是否能用
-	//user.Shares = make([]*Share, 0)
+	user.Shares = make([]*Share, 0)
 	for i:=0; i<len(mps); i++ {
 		s := new(Share)
 		err := mps[i].Load(s)
 		Check(err)
 		user.Shares = append(user.Shares, s)
 	}
+}
 
+/**
+ * 获取用户的报名列表
+ */
+func (user *User) GetApplys() {
+	mps, err := db.QueryMaps("SELECT * from apply where user_id=?", user.Id)
+	Check(err)
+	user.Applys = make([]*Apply, 0)
+	for i:=0; i<len(mps); i++ {
+		s := new(Apply)
+		err := mps[i].Load(s)
+		Check(err)
+		user.Applys = append(user.Applys, s)
+	}
 }
 
 /**
