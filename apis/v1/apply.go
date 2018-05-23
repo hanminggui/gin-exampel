@@ -4,11 +4,10 @@ import (
 	"github.com/gin-gonic/gin"
 	. "github.com/hanminggui/gin-exampel/moudles"
 	"net/http"
-	"strconv"
 )
 
 func GetOneApply(c *gin.Context) {
-	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
+	id := getInt64(c, "id")
 	apply := Apply{Id: id}
 	apply.GetDetail()
 	c.JSON(http.StatusOK, apply)

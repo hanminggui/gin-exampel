@@ -8,7 +8,7 @@ import (
 )
 
 func GetOneShare(c *gin.Context) {
-	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
+	id := getInt64(c, "id")
 	share := Share{Id: id}
 	share.GetDetail()
 	c.JSON(http.StatusOK, share)
@@ -26,7 +26,7 @@ func AddShare(c *gin.Context) {
 }
 
 func DeleteShare(c *gin.Context)  {
-	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
+	id := getInt64(c, "id")
 	share := Share{Id: id}
 	share.Delete()
 	c.JSON(http.StatusOK, share)
@@ -41,8 +41,8 @@ func GetShareList(c *gin.Context)  {
 }
 
 func ApplyAuth(c *gin.Context)  {
-	shareId, _ := strconv.ParseInt(c.Param("shareId"), 10, 64)
-	applyId, _ := strconv.ParseInt(c.Param("applyId"), 10, 64)
+	shareId := getInt64(c, "shareId")
+	applyId := getInt64(c, "applyId")
 	// 鉴权
 	if shareId > 0 && applyId > 0{
 

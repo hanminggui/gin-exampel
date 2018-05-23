@@ -11,6 +11,7 @@ func v1(router *gin.RouterGroup) {
 	apply(v1)
 	share(v1)
 	coach(v1)
+	follow(v1)
 }
 
 func user(router *gin.RouterGroup)  {
@@ -37,9 +38,11 @@ func share(router *gin.RouterGroup)  {
 }
 
 func coach(router *gin.RouterGroup)  {
-// 新增 删除 详情 列表
+	// 新增 删除 详情 列表
 }
 
-func follow()  {
-//	 关注 取消关注
+func follow(router *gin.RouterGroup)  {
+	router.POST("/attention/:userId/follow/:toUserId", Follow)
+	router.POST("/attention/:userId/unFollow/:toUserId", UnFollow)
+	//	 关注 取消关注
 }
