@@ -34,6 +34,7 @@ func DeleteShare(c *gin.Context)  {
 
 func GetShareList(c *gin.Context)  {
 	//tp := c.Query("type")
+
 	limit,_ := strconv.Atoi(c.Query("limit"))
 	offset,_ := strconv.Atoi(c.Query("offset"))
 	c.JSON(http.StatusOK, GetShares(limit, offset))
