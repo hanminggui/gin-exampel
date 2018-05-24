@@ -4,13 +4,18 @@ import (
 	"github.com/gin-gonic/gin"
 	. "github.com/hanminggui/gin-exampel/moudles"
 	"net/http"
+	"github.com/astaxie/beego"
 )
 
 func GetOneApply(c *gin.Context) {
 	id := getInt64(c, "id")
 	apply := Apply{Id: id}
 	apply.GetDetail()
-	c.JSON(http.StatusOK, apply)
+	if apply.Id == 0 {
+		c.AbortWithStatus(http.StatusNotFound)
+	} else {
+		c.JSON(http.StatusOK, apply)
+	}
 }
 
 func AddApply(c *gin.Context) {

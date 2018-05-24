@@ -55,9 +55,13 @@ func (share *Share) Delete()  {
 	Check(err)
 }
 
-func GetShares(limit, offset int) (shares []*Share) {
+func GetShares(tp, offset, limit int) (shares []*Share) {
 	shares = make([]*Share, 0)
-	maps,err := db.QueryMaps("SELECT * FROM share limit ?,?", offset, limit)
+	typeWhere := "type>?"
+	if tp > 0 {
+		typeWhere = "type=?"
+	}
+	maps,err := db.QueryMaps("SELECT * FROM share WHERE "+typeWhere+" limit ?,?", tp, offset, limit)
 	Check(err)
 	for i:=0; i<len(maps); i++ {
 		share := new(Share)

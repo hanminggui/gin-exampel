@@ -10,7 +10,11 @@ func GetOneUser(c *gin.Context) {
 	id := getInt64(c, "id")
 	user := User{Id: id}
 	user.GetDetail()
-	c.JSON(http.StatusOK, user)
+	if user.Id == 0 {
+		c.AbortWithStatus(http.StatusNotFound)
+	} else {
+		c.JSON(http.StatusOK, user)
+	}
 }
 
 
@@ -35,28 +39,28 @@ func DeleteUser(c *gin.Context)  {
 func GetUserShares(c *gin.Context)  {
 	id := getInt64(c, "id")
 	user := User{Id: id}
-	user.GetShares()
+	user.GetShares(c.GetInt("offset"), c.GetInt("limit"))
 	c.JSON(http.StatusOK, user.Shares)
 }
 
 func GetUserApplys(c *gin.Context)  {
 	id := getInt64(c, "id")
 	user := User{Id: id}
-	user.GetApplys()
+	user.GetApplys(c.GetInt("offset"), c.GetInt("limit"))
 	c.JSON(http.StatusOK, user.Applys)
 }
 
 func GetUserFanss(c *gin.Context)  {
 	id := getInt64(c, "id")
 	user := User{Id: id}
-	user.GetFanss()
+	user.GetFanss(c.GetInt("offset"), c.GetInt("limit"))
 	c.JSON(http.StatusOK, user.Fanss)
 }
 
 func GetUserFollows(c *gin.Context)  {
 	id := getInt64(c, "id")
 	user := User{Id: id}
-	user.GetFollows()
+	user.GetFollows(c.GetInt("offset"), c.GetInt("limit"))
 	c.JSON(http.StatusOK, user.Follows)
 }
 

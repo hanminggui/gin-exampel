@@ -9,7 +9,7 @@ import (
 func InitRouter() *gin.Engine {
 	fmt.Println("gin run mode ------------------- " + gin.Mode())
 	router := gin.Default()
-	router.Use(middleware(), timeOut())
+	router.Use(middleware(), timeOut(), needPager())
 	router.GET("/", IndexApi)
 	api := router.Group("/api")
 	v1(api)

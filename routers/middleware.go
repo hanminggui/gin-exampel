@@ -7,6 +7,7 @@ import (
 	"time"
 	"fmt"
 	"runtime"
+	"strconv"
 )
 
 func middleware() gin.HandlerFunc {
@@ -24,8 +25,8 @@ func timeOut() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ch := make(chan int)
 		go func(c1 chan int) {
-			time.Sleep(1 * time.Second)
-			if !c.Writer.Written() {
+			time.Sleep(8 * time.Second)
+			if !c.Writer.Written() && !c.IsAborted() {
 				notTimeout,exit := c.Get("not_timeout")
 				if !exit || notTimeout != true {
 					c1 <- 1
@@ -34,7 +35,7 @@ func timeOut() gin.HandlerFunc {
 		}(ch)
 		go func(c1 chan int) {
 			c.Next()
-			if c.IsAborted() { return }
+			//if c.IsAborted() { return }
 			c1 <- 0
 		}(ch)
 		fmt.Println(runtime.NumGoroutine())
@@ -49,6 +50,21 @@ func timeOut() gin.HandlerFunc {
 func clearTimeOut() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Set("not_timeout", true)
+		c.Next()
+	}
+}
+
+func needPager() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if c.Request.Method == "GET" {
+			limit,_ := strconv.Atoi(c.Query("limit"))
+			offset,_ := strconv.Atoi(c.Query("offset"))
+			if limit == 0 {
+				limit = 20
+			}
+			c.Set("limit", limit)
+			c.Set("offset", offset)
+		}
 		c.Next()
 	}
 }

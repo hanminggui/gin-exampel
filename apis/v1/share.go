@@ -11,7 +11,11 @@ func GetOneShare(c *gin.Context) {
 	id := getInt64(c, "id")
 	share := Share{Id: id}
 	share.GetDetail()
-	c.JSON(http.StatusOK, share)
+	if share.Id == 0 {
+		c.AbortWithStatus(http.StatusNotFound)
+	} else {
+		c.JSON(http.StatusOK, share)
+	}
 }
 
 func AddShare(c *gin.Context) {
@@ -33,11 +37,9 @@ func DeleteShare(c *gin.Context)  {
 }
 
 func GetShareList(c *gin.Context)  {
-	//tp := c.Query("type")
-
-	limit,_ := strconv.Atoi(c.Query("limit"))
-	offset,_ := strconv.Atoi(c.Query("offset"))
-	c.JSON(http.StatusOK, GetShares(limit, offset))
+	tp,_ := strconv.Atoi(c.Query("type"))
+	shares := GetShares(tp, c.GetInt("offset"), c.GetInt("limit"))
+	c.JSON(http.StatusOK, shares)
 }
 
 func ApplyAuth(c *gin.Context)  {

@@ -116,9 +116,10 @@ func (user *User) UnFollow(toUser *User) (err error) {
 /**
  * 获取用户信息
  */
-func (user *User) GetDetail() {
+func (user *User) GetDetail() (exit bool) {
 	err := db.QueryOne(user, "SELECT * from user where id=?", user.Id)
 	Check(err)
+	return
 }
 
 func (user *User) Delete()  {
@@ -130,8 +131,8 @@ func (user *User) Delete()  {
 /**
  * 获取用户的分享列表
  */
-func (user *User) GetShares() {
-	mps, err := db.QueryMaps("SELECT * from share where user_id=?", user.Id)
+func (user *User) GetShares(offset, limit int) {
+	mps, err := db.QueryMaps("SELECT * from share where user_id=? limit ?,?", user.Id, offset, limit)
 	Check(err)
 	user.Shares = make([]*Share, 0)
 	for i:=0; i<len(mps); i++ {
@@ -145,8 +146,8 @@ func (user *User) GetShares() {
 /**
  * 获取用户的报名列表
  */
-func (user *User) GetApplys() {
-	mps, err := db.QueryMaps("SELECT * from apply where user_id=?", user.Id)
+func (user *User) GetApplys(offset, limit int) {
+	mps, err := db.QueryMaps("SELECT * from apply where user_id=? limit ?,?", user.Id, offset, limit)
 	Check(err)
 	user.Applys = make([]*Apply, 0)
 	for i:=0; i<len(mps); i++ {
@@ -160,8 +161,8 @@ func (user *User) GetApplys() {
 /**
  * 获取用户的关注列表
  */
-func (user *User) GetFollows() {
-	mps,err := db.QueryMaps("SELECT * from attention a, user u where a.user_id=? and a.to_user_id=u.id", user.Id)
+func (user *User) GetFollows(offset, limit int) {
+	mps,err := db.QueryMaps("SELECT * from attention a, user u where a.user_id=? and a.to_user_id=u.id  limit ?,?", user.Id, offset, limit)
 	Check(err)
 	for i:=0; i<len(mps); i++ {
 		attention := new(Attention)
@@ -174,8 +175,8 @@ func (user *User) GetFollows() {
 /**
  * 获取用户的粉丝列表
  */
-func (user *User) GetFanss() {
-	mps, err := db.QueryMaps("SELECT * from attention a, user u where a.to_user_id=? and a.user_id=u.id", user.Id)
+func (user *User) GetFanss(offset, limit int) {
+	mps, err := db.QueryMaps("SELECT * from attention a, user u where a.to_user_id=? and a.user_id=u.id  limit ?,?", user.Id, offset, limit)
 	Check(err)
 	for i:=0; i<len(mps); i++ {
 		attention := new(Attention)
