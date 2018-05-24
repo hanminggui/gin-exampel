@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	. "github.com/hanminggui/gin-exampel/moudles"
 	"net/http"
-	"github.com/astaxie/beego"
 )
 
 func GetOneApply(c *gin.Context) {
