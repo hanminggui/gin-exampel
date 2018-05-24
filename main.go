@@ -7,10 +7,12 @@ import (
 	"log"
 	//"time"
 	//"net/http"
+	"os"
 )
 
 func main() {
 	log.SetFlags(19)
+	log.SetOutput(os.Stderr)
 	defer db.SqlDB.Close()
 	router := r.InitRouter()
 	router.Run(":" + Conf.Port)
