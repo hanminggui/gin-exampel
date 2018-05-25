@@ -23,7 +23,7 @@ cd C:
 cd C:\Users\song\go\src\github.com\hanminggui\gin-exampel
 install.bat
 ```
-### 运行环境配置
+### 生产环境运行环境配置
 - Linux
 ```
 export GIN_MODE=release
@@ -36,23 +36,23 @@ set GIN_MODE=release
 ### 启动
 - build
 ```
-go build
+go build main.go -o api
 ```
 - run
 
 ```
 Linux
-go run #开发环境 编译并运行
-./exampel #编译后运行
+./api # （编译后运行）
 
 Windows
-gin-exampel.exe #编译后运行
+api.exe #双击启动 （编译后运行）
 ```
 
 ### 文件说明
 - main.go  程序入口
-- install.sh  包管理文件
-- routers/  路由
+- install.sh  包管理文件unix
+- install.sh  包管理文件win
+- routers/  路由及中间件
 - apis/  接口逻辑
 - moudles/  对象模型
 - lib/  工具包
