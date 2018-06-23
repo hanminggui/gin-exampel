@@ -17,6 +17,6 @@ func init()  {
 
 func Check(err error)  {
 	if err != nil {
-		log.Panicln(err.Error())
+		log.Println(err)
 	}
 }
